@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	commandMap = make(map[string]*command)
+	CommandMap = make(map[string]*command)
 	aliasMap   = make(map[string]string)
 	l          = log.New(os.Stderr, "cmds: ", log.LstdFlags|log.Lshortfile)
 )
@@ -24,7 +24,7 @@ type command struct {
 }
 
 func add(c *command) {
-	commandMap[c.trigger] = c
+	CommandMap[c.trigger] = c
 	for _, alias := range c.aliases {
 		aliasMap[alias] = c.trigger
 	}
@@ -52,9 +52,9 @@ func HandleCommandOnMessageCreate(session *discordgo.Session, message *discordgo
 	}
 
 	trigger := strings.ToLower(strings.Split(message.Content, " ")[0][len(config.CommandPrefix):])
-	cmd, ok := commandMap[trigger]
+	cmd, ok := CommandMap[trigger]
 	if !ok {
-		cmd, ok = commandMap[aliasMap[trigger]]
+		cmd, ok = CommandMap[aliasMap[trigger]]
 		if !ok {
 			return
 		}
