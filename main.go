@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/ArmandSyah/TomoPyon/commands"
 	"github.com/ArmandSyah/TomoPyon/config"
@@ -9,7 +10,6 @@ import (
 )
 
 func main() {
-	fmt.Println(len(os.Args))
 	if len(os.Args) > 1 {
 		testing()
 	} else {
@@ -26,5 +26,11 @@ func main() {
 }
 
 func testing() {
-	misc.SearchAnime("cowboy")
+	animeListing := misc.SearchAnime("cowboy")
+	if str, ok := animeListing.(misc.AnimeSearchResults); ok {
+		b, _ := json.Marshal(str)
+		fmt.Println(string(b))
+	} else {
+		fmt.Println("something went wrong")
+	}
 }

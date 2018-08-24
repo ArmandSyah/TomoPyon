@@ -3,7 +3,6 @@ package misc
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -52,7 +51,7 @@ func getResponse(body []byte) (*MediaAPIResponse, error) {
 }
 
 //SearchAnime [title]
-func SearchAnime(title string) {
+func SearchAnime(title string) interface{} {
 	query := `query ($search: String) {
 				animeSearchResults: Page {
 					media(search: $search, type: ANIME){
@@ -78,32 +77,33 @@ func SearchAnime(title string) {
 				}
 			}`
 	variables := map[string]string{"search": title}
-	runQuery(query, variables)
+	queryResults := runQuery(query, variables)
+	if data, ok := queryResults.(Data); ok {
+		animeSearchResults := data.AnimeSearchResults
+		return animeSearchResults
+	}
+	return nil
 }
 
-func runQuery(query string, variables map[string]string) {
+func runQuery(query string, variables map[string]string) interface{} {
 	url := "https://graphql.anilist.co"
 	values := map[string]interface{}{"query": query, "variables": variables}
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
-		fmt.Println("Test1")
-		return
+		panic(err.Error())
 	}
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
-		fmt.Println("Test2")
-		return
+		panic(err.Error())
 	}
 	defer resp.Body.Close()
-	anilistData, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		panic(err.Error())
 	}
-	anime, err := getResponse([]byte(anilistData))
-	a, err := json.Marshal(&anime.Data.AnimeSearchResults.Media)
+	anilistData, err := getResponse([]byte(body))
 	if err != nil {
-		fmt.Printf("There was an error encoding the json. err = %s", err)
-		return
+		panic(err.Error())
 	}
-	fmt.Printf("encoded json = %s\r\n", string(a))
+	return anilistData.Data
 }
