@@ -38,6 +38,7 @@ type Media struct {
 	MeanScore    int        `json:"meanScore"`
 	Popularity   int        `json:"popularity"`
 	Trending     int        `json:"trending"`
+	SiteURL      string     `json:"siteUrl"`
 }
 
 type AnimeSearchResults struct {
@@ -85,7 +86,8 @@ func SearchAnime(title string) interface{} {
 						averageScore 
 						meanScore    
 						popularity   
-						trending     
+						trending
+						siteUrl     
 					}
 				}
 			}`
