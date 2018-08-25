@@ -1,11 +1,12 @@
 package main
 
 import (
-	"encoding/json"
+	"strings"
+	//"encoding/json"
 	"fmt"
+	"github.com/ArmandSyah/TomoPyon/anilist"
 	"github.com/ArmandSyah/TomoPyon/commands"
 	"github.com/ArmandSyah/TomoPyon/config"
-	"github.com/ArmandSyah/TomoPyon/misc"
 	"os"
 )
 
@@ -26,11 +27,16 @@ func main() {
 }
 
 func testing() {
-	animeListing := misc.SearchAnime("cowboy")
-	if str, ok := animeListing.(misc.AnimeSearchResults); ok {
-		b, _ := json.Marshal(str)
-		fmt.Println(string(b))
+	animeListings := anilist.SearchAnime("cowboy")
+	if animes, ok := animeListings.([]anilist.Media); ok {
+		for i, anime := range animes {
+			genres := strings.Join(anime.Genres, ", ")
+			fmt.Println(i)
+			fmt.Println("English Title: " + anime.Title.English)
+			fmt.Println("Description: " + anime.Description)
+			fmt.Println("Genres: " + genres)
+		}
 	} else {
-		fmt.Println("something went wrong")
+		fmt.Println("XDDDDDD")
 	}
 }
