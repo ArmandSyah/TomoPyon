@@ -3,10 +3,10 @@ package main
 import (
 	//"strings"
 	//"encoding/json"
-	"fmt"
+	// "fmt"
 	"github.com/ArmandSyah/TomoPyon/commands"
 	"github.com/ArmandSyah/TomoPyon/config"
-	"github.com/ArmandSyah/TomoPyon/misc"
+	// "github.com/ArmandSyah/TomoPyon/misc"
 	"os"
 )
 
@@ -39,5 +39,13 @@ func testing() {
 	// } else {
 	// 	fmt.Println("XDDDDDD")
 	// }
-	fmt.Println(misc.TrimSides("<Cowboy Bebop>", "<", ">"))
+	// fmt.Println(misc.TrimSides("<Cowboy Bebop>", "<", ">"))
+	config.Startup()
+	config.Discord.AddHandler(commands.OnReady)
+	err := config.Discord.Open()
+	if err != nil {
+		panic(err)
+	}
+	defer config.Discord.Close()
+	<-make(chan struct{})
 }
