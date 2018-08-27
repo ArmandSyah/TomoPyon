@@ -26,28 +26,14 @@ func getTitle(mediaTitle anilist.MediaTitle) string {
 }
 
 func searchAnime(session *discordgo.Session, message *discordgo.Message) {
-	content, authorName, avatarURL := message.Content, message.Author.Username, message.Author.AvatarURL("")
+	content := message.Content
 	animeSearchQuery := misc.ExtractSubstr(content, animeRegex)
 	//flags := misc.ExtractSubstr(content, flagRegex)
 	animeSearchQuery = misc.TrimSides(animeSearchQuery, "<", ">")
 	//flags = misc.TrimSides(flags, "[", "]")
 	animeSearchResults := anilist.SearchAnime(animeSearchQuery)
 	if animes, ok := animeSearchResults.([]anilist.Media); ok {
-		if len(animes) > 25 {
-			animes = animes[:25]
-		}
-		embed := misc.NewEmbed()
-		title := fmt.Sprintf("Search Results for: %s", animeSearchQuery)
-		embed.SetTitle(title)
-		embed.SetAuthor(authorName, avatarURL)
-		for _, anime := range animes {
-			title, anilistLink, score, episodes, status, popularity := getTitle(anime.Title), anime.SiteURL, anime.MeanScore, anime.Episodes, anime.Status, anime.Popularity
-			key := fmt.Sprintf("%s: %s", title, anilistLink)
-			value := fmt.Sprintf("Score: %v - Eps: %v - Status: %s - Popularity: %v", score, episodes, status, popularity)
-			embed.AddField(key, value)
-		}
-		embed.SetColor(0x1855F5)
-		session.ChannelMessageSendEmbed(message.ChannelID, embed.MessageEmbed)
+		makeAnimeSearchEmbeds(session, message, animes, animeSearchQuery)
 	} else {
 		_, err := session.ChannelMessageSend(message.ChannelID, "Error while searching")
 		if err != nil {
@@ -71,7 +57,7 @@ func makeAnimeSearchEmbeds(session *discordgo.Session, message *discordgo.Messag
 	} else {
 		searchResultChunks = append(searchResultChunks, animes[:len(animes)])
 	}
-	for _, searchResultChunk := range searchResultChunks {
+	for i, searchResultChunk := range searchResultChunks {
 		embed := misc.NewEmbed()
 		title := fmt.Sprintf("Search Results for: %s", animeSearchQuery)
 		embed.SetTitle(title)
@@ -83,27 +69,52 @@ func makeAnimeSearchEmbeds(session *discordgo.Session, message *discordgo.Messag
 			embed.AddField(key, value)
 		}
 		embed.SetColor(0x1855F5)
+		footerMetadata := fmt.Sprintf("Current Page: %+v - Total Pages: %+v", i+1, len(searchResultChunks))
+		embed.SetFooter(footerMetadata, avatarURL)
 		embeds = append(embeds, embed)
-		sendEmbeddedMessage(session, message, embeds)
 	}
+	sendEmbeddedMessage(session, message, embeds)
 }
 
 func sendEmbeddedMessage(session *discordgo.Session, message *discordgo.Message, embeds []*misc.Embed) {
 	if len(embeds) > 1 {
-		sentMessage, err := session.ChannelMessageSendEmbed(message.ChannelID, embeds[0].MessageEmbed)
+		index, totalPages := 0, len(embeds)-1
+		sentMessage, err := session.ChannelMessageSendEmbed(message.ChannelID, embeds[index].MessageEmbed)
 		if err != nil {
+			fmt.Println(err.Error())
 			return
 		}
-		err = session.MessageReactionAdd(sentMessage.ChannelID, sentMessage.ID, ":arrow_left:")
+		err = session.MessageReactionAdd(sentMessage.ChannelID, sentMessage.ID, "⬅")
 		if err != nil {
+			fmt.Println("arrow_left error: " + err.Error())
 			return
 		}
-		err = session.MessageReactionAdd(sentMessage.ChannelID, sentMessage.ID, ":arrow_right:")
+		err = session.MessageReactionAdd(sentMessage.ChannelID, sentMessage.ID, "➡")
 		if err != nil {
+			fmt.Println("arrow_right error: " + err.Error())
 			return
 		}
 		config.Discord.AddHandler(func(session *discordgo.Session, reaction *discordgo.MessageReactionAdd) {
-
+			if reaction.UserID == config.BotID || reaction.UserID != sentMessage.Author.ID {
+				return
+			}
+			if reaction.Emoji.Name == "⬅" {
+				if index == totalPages {
+					index = 0
+				} else {
+					index++
+				}
+				session.ChannelMessageEditEmbed(sentMessage.ChannelID, sentMessage.ID, embeds[index].MessageEmbed)
+				session.MessageReactionRemove(reaction.ChannelID, reaction.MessageID, reaction.Emoji.Name, reaction.UserID)
+			} else {
+				if index == 0 {
+					index = totalPages
+				} else {
+					index--
+				}
+				session.ChannelMessageEditEmbed(sentMessage.ChannelID, sentMessage.ID, embeds[index].MessageEmbed)
+				session.MessageReactionRemove(reaction.ChannelID, reaction.MessageID, reaction.Emoji.Name, reaction.UserID)
+			}
 		})
 	} else {
 		_, err := session.ChannelMessageSendEmbed(message.ChannelID, embeds[0].MessageEmbed)
