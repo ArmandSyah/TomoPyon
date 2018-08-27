@@ -1,6 +1,7 @@
 package misc
 
 import (
+	"fmt"
 	"github.com/grokify/html-strip-tags-go"
 	"regexp"
 	"strings"
@@ -20,5 +21,12 @@ func ExtractSubstr(input string, expr string) (output string) {
 func TrimSides(input, prefix, suffix string) (output string) {
 	output = strings.TrimPrefix(input, prefix)
 	output = strings.TrimSuffix(output, suffix)
+	return
+}
+
+func ReplaceSubstr(input, expr string) (output string) {
+	r := regexp.MustCompile(expr)
+	output = r.ReplaceAllString(input, "${1}")
+	fmt.Println(output)
 	return
 }

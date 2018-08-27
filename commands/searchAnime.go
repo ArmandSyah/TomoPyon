@@ -6,11 +6,13 @@ import (
 	"github.com/ArmandSyah/TomoPyon/config"
 	"github.com/ArmandSyah/TomoPyon/misc"
 	"github.com/bwmarrin/discordgo"
+	"strings"
 )
 
 const (
-	animeRegex = "<.*>"
-	flagRegex  = "[.*]"
+	animeRegex      = "<.*>"
+	flagRegex       = "[.*]"
+	flagRemoveRegex = `(.*) (\[.*\])`
 )
 
 func getTitle(mediaTitle anilist.MediaTitle) string {
@@ -27,10 +29,12 @@ func getTitle(mediaTitle anilist.MediaTitle) string {
 
 func searchAnime(session *discordgo.Session, message *discordgo.Message) {
 	content := message.Content
-	animeSearchQuery := misc.ExtractSubstr(content, animeRegex)
+	content = misc.ReplaceSubstr(content, flagRemoveRegex)
+	seperatedContent := strings.Split(content, " ")
+	animeSearchQuery := strings.Join(seperatedContent[1:], " ")
 	//flags := misc.ExtractSubstr(content, flagRegex)
-	animeSearchQuery = misc.TrimSides(animeSearchQuery, "<", ">")
 	//flags = misc.TrimSides(flags, "[", "]")
+	animeSearchQuery = misc.TrimSides(animeSearchQuery, "<", ">")
 	animeSearchResults := anilist.SearchAnime(animeSearchQuery)
 	if animes, ok := animeSearchResults.([]anilist.Media); ok {
 		makeAnimeSearchEmbeds(session, message, animes, animeSearchQuery)
@@ -69,7 +73,7 @@ func makeAnimeSearchEmbeds(session *discordgo.Session, message *discordgo.Messag
 			embed.AddField(key, value)
 		}
 		embed.SetColor(0x1855F5)
-		footerMetadata := fmt.Sprintf("Current Page: %+v - Total Pages: %+v", i+1, len(searchResultChunks))
+		footerMetadata := fmt.Sprintf("Current Page: %v - Total Pages: %v - Results on Page: %v - Total # of Results: %v", i+1, len(searchResultChunks), len(searchResultChunk), len(animes))
 		embed.SetFooter(footerMetadata, avatarURL)
 		embeds = append(embeds, embed)
 	}
