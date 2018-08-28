@@ -7,11 +7,12 @@ import (
 	"github.com/ArmandSyah/TomoPyon/misc"
 	"github.com/bwmarrin/discordgo"
 	"strings"
+	"time"
 )
 
 const (
 	animeRegex      = "<.*>"
-	flagRegex       = "[.*]"
+	flagRegex       = `\[.*\]`
 	flagRemoveRegex = `(.*) (\[.*\])`
 )
 
@@ -29,11 +30,14 @@ func getTitle(mediaTitle anilist.MediaTitle) string {
 
 func searchAnime(session *discordgo.Session, message *discordgo.Message) {
 	content := message.Content
-	content = misc.ReplaceSubstr(content, flagRemoveRegex)
-	seperatedContent := strings.Split(content, " ")
+	cleanedContent := misc.ReplaceSubstr(content, flagRemoveRegex)
+	seperatedContent := strings.Split(cleanedContent, " ")
 	animeSearchQuery := strings.Join(seperatedContent[1:], " ")
-	//flags := misc.ExtractSubstr(content, flagRegex)
-	//flags = misc.TrimSides(flags, "[", "]")
+	flags := misc.ExtractSubstr(content, flagRegex)
+	flags = misc.TrimSides(flags, "[", "]")
+	flags = misc.StripWhitespace(flags)
+	flagList := strings.Split(flags, ",")
+	fmt.Println(flagList)
 	animeSearchQuery = misc.TrimSides(animeSearchQuery, "<", ">")
 	animeSearchResults := anilist.SearchAnime(animeSearchQuery)
 	if animes, ok := animeSearchResults.([]anilist.Media); ok {
@@ -80,6 +84,38 @@ func makeAnimeSearchEmbeds(session *discordgo.Session, message *discordgo.Messag
 	sendEmbeddedMessage(session, message, embeds)
 }
 
+func makeAnimeSearchEmbedsVerbose(session *discordgo.Session, message *discordgo.Message, animes []anilist.Media, animeSearchQuery string) {
+	authorName, avatarURL := message.Author.Username, message.Author.AvatarURL("")
+	var embeds []*misc.Embed
+	for _, anime := range animes {
+		embed := misc.NewEmbed()
+		title := fmt.Sprintf("Search Results for: %s", animeSearchQuery)
+		engTitle, romajiTitle, japTitle, anilistLink, status, format := anime.Title.English, anime.Title.Romaji, anime.Title.Native, anime.SiteURL, anime.Status, anime.Format
+		animeType, startDate, endDate, season, episodes := anime.Type, anime.StartDate, anime.EndDate, anime.Season, anime.Episodes
+		duration, source, genres, popularity, coverImages := anime.Duration, anime.Source, anime.Genres, anime.Popularity, anime.CoverImage
+		synonyms, malID, description := anime.Synonyms, anime.IDMal, anime.Description
+		sd, ed := time.Date(startDate.Year, MonthstartDate.Month, startDate.Day, 0, 0, 0, 0, time.UTC), time.Date(endDate.Year, endDate.Month, endDate.Day, 0, 0, 0, 0, time.UTC)
+		sdy, sdm, sdd := sd.Date()
+		edy, edm, edd := ed.Date()
+		startDateStr := fmt.Sprintf("%v %v, %v")
+		embed.SetTitle(title)
+		embed.SetAuthor(authorName, avatarURL)
+		embed.SetThumbnail(coverImages.Medium)
+		embed.SetImage(coverImages.Large)
+		embed.InlineAllFields()
+		embed.AddField("Names", fmt.Sprintf("English: %s - Romaji: %s - Japanese: %s", engTitle, romajiTitle, japTitle))
+		embed.AddField("Synonyms", strings.Join(synonyms, ", "))
+		embed.AddField("Anilist Link", anilistLink)
+		embed.AddField("MAL Link", fmt.Sprintf("myanimelist.net/anime/%v", malID))
+		embed.AddField("Description", description)
+		embed.AddField("Status", status)
+		embed.AddField("Format", format)
+		embed.AddField("Type", animeType)
+		embed.AddField("Start Date")
+	}
+	sendEmbeddedMessage(session, message, embeds)
+}
+
 func sendEmbeddedMessage(session *discordgo.Session, message *discordgo.Message, embeds []*misc.Embed) {
 	if len(embeds) > 1 {
 		index, totalPages := 0, len(embeds)-1
@@ -102,7 +138,7 @@ func sendEmbeddedMessage(session *discordgo.Session, message *discordgo.Message,
 			if reaction.UserID == config.BotID || reaction.UserID != sentMessage.Author.ID {
 				return
 			}
-			if reaction.Emoji.Name == "⬅" {
+			if reaction.Emoji.Name == "➡" {
 				if index == totalPages {
 					index = 0
 				} else {
@@ -110,7 +146,7 @@ func sendEmbeddedMessage(session *discordgo.Session, message *discordgo.Message,
 				}
 				session.ChannelMessageEditEmbed(sentMessage.ChannelID, sentMessage.ID, embeds[index].MessageEmbed)
 				session.MessageReactionRemove(reaction.ChannelID, reaction.MessageID, reaction.Emoji.Name, reaction.UserID)
-			} else {
+			} else if reaction.Emoji.Name == "⬅" {
 				if index == 0 {
 					index = totalPages
 				} else {

@@ -30,3 +30,7 @@ func ReplaceSubstr(input, expr string) (output string) {
 	fmt.Println(output)
 	return
 }
+
+func StripWhitespace(input string) string {
+	return strings.Replace(input, " ", "", -1)
+}

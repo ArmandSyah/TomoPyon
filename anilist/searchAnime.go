@@ -16,29 +16,35 @@ type MediaTitle struct {
 	Native  string `json:"native"`
 }
 
+type MediaCoverImage struct {
+	Large  string `json:"large"`
+	Medium string `json:"medium"`
+}
+
 type Media struct {
-	ID           int        `json:"id"`
-	IDMal        int        `json:"idMal"`
-	Title        MediaTitle `json:"title"`
-	Type         string     `json:"type"`
-	Format       string     `json:"format"`
-	Status       string     `json:"status"`
-	Description  string     `json:"description"`
-	StartDate    FuzzyDate  `json:"startDate"`
-	EndDate      FuzzyDate  `json:"endDate"`
-	Season       string     `json:"season"`
-	Episodes     int        `json:"episodes"`
-	Duration     int        `json:"duration"`
-	IsLicensed   bool       `json:"isLicensed"`
-	Source       string     `json:"source"`
-	Hashtag      string     `json:"hashtag"`
-	Genres       []string   `json:"genres"`
-	Synonyms     []string   `json:"synonyms"`
-	AverageScore int        `json:"averageScore"`
-	MeanScore    int        `json:"meanScore"`
-	Popularity   int        `json:"popularity"`
-	Trending     int        `json:"trending"`
-	SiteURL      string     `json:"siteUrl"`
+	ID           int             `json:"id"`
+	IDMal        int             `json:"idMal"`
+	Title        MediaTitle      `json:"title"`
+	Type         string          `json:"type"`
+	Format       string          `json:"format"`
+	Status       string          `json:"status"`
+	Description  string          `json:"description"`
+	StartDate    FuzzyDate       `json:"startDate"`
+	EndDate      FuzzyDate       `json:"endDate"`
+	Season       string          `json:"season"`
+	Episodes     int             `json:"episodes"`
+	Duration     int             `json:"duration"`
+	IsLicensed   bool            `json:"isLicensed"`
+	Source       string          `json:"source"`
+	Hashtag      string          `json:"hashtag"`
+	Genres       []string        `json:"genres"`
+	Synonyms     []string        `json:"synonyms"`
+	AverageScore int             `json:"averageScore"`
+	MeanScore    int             `json:"meanScore"`
+	Popularity   int             `json:"popularity"`
+	Trending     int             `json:"trending"`
+	SiteURL      string          `json:"siteUrl"`
+	CoverImage   MediaCoverImage `json:"coverImage"`
 }
 
 type AnimeSearchResults struct {
@@ -87,7 +93,8 @@ func SearchAnime(title string) interface{} {
 						meanScore    
 						popularity   
 						trending
-						siteUrl     
+						siteUrl
+						coverImage     
 					}
 				}
 			}`
