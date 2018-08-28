@@ -6,6 +6,7 @@ import (
 	"github.com/ArmandSyah/TomoPyon/config"
 	"github.com/ArmandSyah/TomoPyon/misc"
 	"github.com/bwmarrin/discordgo"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -36,12 +37,13 @@ func searchAnime(session *discordgo.Session, message *discordgo.Message) {
 	flags := misc.ExtractSubstr(content, flagRegex)
 	flags = misc.TrimSides(flags, "[", "]")
 	flags = misc.StripWhitespace(flags)
-	flagList := strings.Split(flags, ",")
-	fmt.Println(flagList)
-	animeSearchQuery = misc.TrimSides(animeSearchQuery, "<", ">")
 	animeSearchResults := anilist.SearchAnime(animeSearchQuery)
 	if animes, ok := animeSearchResults.([]anilist.Media); ok {
-		makeAnimeSearchEmbeds(session, message, animes, animeSearchQuery)
+		if flags == "v" {
+			makeAnimeSearchEmbedsVerbose(session, message, animes, animeSearchQuery)
+		} else {
+			makeAnimeSearchEmbeds(session, message, animes, animeSearchQuery)
+		}
 	} else {
 		_, err := session.ChannelMessageSend(message.ChannelID, "Error while searching")
 		if err != nil {
@@ -87,31 +89,41 @@ func makeAnimeSearchEmbeds(session *discordgo.Session, message *discordgo.Messag
 func makeAnimeSearchEmbedsVerbose(session *discordgo.Session, message *discordgo.Message, animes []anilist.Media, animeSearchQuery string) {
 	authorName, avatarURL := message.Author.Username, message.Author.AvatarURL("")
 	var embeds []*misc.Embed
-	for _, anime := range animes {
+	for i, anime := range animes {
 		embed := misc.NewEmbed()
 		title := fmt.Sprintf("Search Results for: %s", animeSearchQuery)
-		engTitle, romajiTitle, japTitle, anilistLink, status, format := anime.Title.English, anime.Title.Romaji, anime.Title.Native, anime.SiteURL, anime.Status, anime.Format
+		engTitle, romajiTitle, anilistLink, status, format := anime.Title.English, anime.Title.Romaji, anime.SiteURL, anime.Status, anime.Format
 		animeType, startDate, endDate, season, episodes := anime.Type, anime.StartDate, anime.EndDate, anime.Season, anime.Episodes
-		duration, source, genres, popularity, coverImages := anime.Duration, anime.Source, anime.Genres, anime.Popularity, anime.CoverImage
+		duration, genres, popularity, coverImages := anime.Duration, anime.Genres, anime.Popularity, anime.CoverImage
 		synonyms, malID, description := anime.Synonyms, anime.IDMal, anime.Description
-		sd, ed := time.Date(startDate.Year, MonthstartDate.Month, startDate.Day, 0, 0, 0, 0, time.UTC), time.Date(endDate.Year, endDate.Month, endDate.Day, 0, 0, 0, 0, time.UTC)
+		sd, ed := time.Date(startDate.Year, time.Month(startDate.Month), startDate.Day, 0, 0, 0, 0, time.UTC), time.Date(endDate.Year, time.Month(endDate.Month), endDate.Day, 0, 0, 0, 0, time.UTC)
 		sdy, sdm, sdd := sd.Date()
 		edy, edm, edd := ed.Date()
-		startDateStr := fmt.Sprintf("%v %v, %v")
+		dateStr := fmt.Sprintf("%v %v, %v - %v %v, %v", sdm, sdd, sdy, edm, edd, edy)
 		embed.SetTitle(title)
 		embed.SetAuthor(authorName, avatarURL)
 		embed.SetThumbnail(coverImages.Medium)
 		embed.SetImage(coverImages.Large)
 		embed.InlineAllFields()
-		embed.AddField("Names", fmt.Sprintf("English: %s - Romaji: %s - Japanese: %s", engTitle, romajiTitle, japTitle))
+		embed.AddField("Names", fmt.Sprintf("English: %s - Romaji: %s", engTitle, romajiTitle))
 		embed.AddField("Synonyms", strings.Join(synonyms, ", "))
 		embed.AddField("Anilist Link", anilistLink)
-		embed.AddField("MAL Link", fmt.Sprintf("myanimelist.net/anime/%v", malID))
+		embed.AddField("MAL Link", fmt.Sprintf("https://myanimelist.net/anime/%v", malID))
 		embed.AddField("Description", description)
 		embed.AddField("Status", status)
 		embed.AddField("Format", format)
 		embed.AddField("Type", animeType)
-		embed.AddField("Start Date")
+		embed.AddField("Start Date - End Date", dateStr)
+		embed.AddField("Season", season)
+		embed.AddField("Episode", strconv.Itoa(episodes))
+		embed.AddField("Duration", strconv.Itoa(duration))
+		embed.AddField("Genres", strings.Join(genres, ", "))
+		embed.AddField("Popularity", strconv.Itoa(popularity))
+		embed.SetColor(0x1855F5)
+		footerMetadata := fmt.Sprintf("Current Page: %v - Total Pages: %v", i+1, len(animes))
+		embed.SetFooter(footerMetadata, avatarURL)
+		truncatedEmbed := embed.Truncate()
+		embeds = append(embeds, truncatedEmbed)
 	}
 	sendEmbeddedMessage(session, message, embeds)
 }
@@ -135,7 +147,7 @@ func sendEmbeddedMessage(session *discordgo.Session, message *discordgo.Message,
 			return
 		}
 		config.Discord.AddHandler(func(session *discordgo.Session, reaction *discordgo.MessageReactionAdd) {
-			if reaction.UserID == config.BotID || reaction.UserID != sentMessage.Author.ID {
+			if reaction.UserID == config.BotID || reaction.UserID != message.Author.ID {
 				return
 			}
 			if reaction.Emoji.Name == "➡" {

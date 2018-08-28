@@ -94,7 +94,10 @@ func SearchAnime(title string) interface{} {
 						popularity   
 						trending
 						siteUrl
-						coverImage     
+						coverImage{
+							large
+							medium
+						}    
 					}
 				}
 			}`
