@@ -1,7 +1,7 @@
 package main
 
 import (
-	"strings"
+	// "strings"
 	//"encoding/json"
 	"fmt"
 	"github.com/ArmandSyah/TomoPyon/anilist"
@@ -27,15 +27,12 @@ func main() {
 }
 
 func testing() {
-	animeListings := anilist.SearchManga("Jojo")
-	if animes, ok := animeListings.([]anilist.Media); ok {
+	animeListings := anilist.SearchCharacter("rias")
+	if animes, ok := animeListings.([]anilist.Character); ok {
+		fmt.Printf("characters found: %v\n", len(animes))
 		for i, anime := range animes {
-			genres := strings.Join(anime.Genres, ", ")
 			fmt.Println(i)
-			fmt.Println("English Title: " + anime.Title.English)
-			fmt.Printf("Chapters: %v\n", anime.Chapters)
-			fmt.Println("Description: " + anime.Description)
-			fmt.Println("Genres: " + genres)
+			fmt.Println("English Title: " + anime.Name.Native)
 		}
 	} else {
 		fmt.Println("XDDDDDD")
