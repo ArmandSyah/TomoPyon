@@ -54,7 +54,15 @@ func sendEmbeddedMessage(session *discordgo.Session, message *discordgo.Message,
 				} else {
 					index++
 				}
-				session.ChannelMessageEditEmbed(sentMessage.ChannelID, sentMessage.ID, embeds[index].MessageEmbed)
+				_, err := session.ChannelMessageEditEmbed(sentMessage.ChannelID, sentMessage.ID, embeds[index].MessageEmbed)
+				if err != nil {
+					index--
+					if index < 0 {
+						index = totalPages
+					}
+					fmt.Println(err.Error())
+					return
+				}
 				session.MessageReactionRemove(reaction.ChannelID, reaction.MessageID, reaction.Emoji.Name, reaction.UserID)
 			} else if reaction.Emoji.Name == "⬅" {
 				if index == 0 {
@@ -62,10 +70,17 @@ func sendEmbeddedMessage(session *discordgo.Session, message *discordgo.Message,
 				} else {
 					index--
 				}
-				session.ChannelMessageEditEmbed(sentMessage.ChannelID, sentMessage.ID, embeds[index].MessageEmbed)
+				_, err := session.ChannelMessageEditEmbed(sentMessage.ChannelID, sentMessage.ID, embeds[index].MessageEmbed)
+				if err != nil {
+					index++
+					if index > totalPages {
+						index = 0
+					}
+					fmt.Println(err.Error())
+					return
+				}
 				session.MessageReactionRemove(reaction.ChannelID, reaction.MessageID, reaction.Emoji.Name, reaction.UserID)
 			}
-			fmt.Printf("Index: %v\n", index)
 		})
 	} else {
 		_, err := session.ChannelMessageSendEmbed(message.ChannelID, embeds[0].MessageEmbed)

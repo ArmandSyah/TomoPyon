@@ -70,13 +70,13 @@ func makeMangaSearchEmbeds(session *discordgo.Session, message *discordgo.Messag
 func makeMangaSearchEmbedsVerbose(session *discordgo.Session, message *discordgo.Message, animes []anilist.Media, mangaSearchQuery string) {
 	authorName, avatarURL := message.Author.Username, message.Author.AvatarURL("")
 	var embeds []*misc.Embed
-	for i, anime := range animes {
+	for i, manga := range animes {
 		embed := misc.NewEmbed()
 		title := fmt.Sprintf("Search Results for: %s", mangaSearchQuery)
-		engTitle, romajiTitle, anilistLink, status, format := anime.Title.English, anime.Title.Romaji, anime.SiteURL, anime.Status, anime.Format
-		animeType, startDate, endDate, volumes, chapters := anime.Type, anime.StartDate, anime.EndDate, anime.Volumes, anime.Chapters
-		duration, genres, popularity, coverImages := anime.Duration, anime.Genres, anime.Popularity, anime.CoverImage
-		synonyms, malID, description := anime.Synonyms, anime.IDMal, anime.Description
+		engTitle, romajiTitle, anilistLink, status, format := manga.Title.English, manga.Title.Romaji, manga.SiteURL, manga.Status, manga.Format
+		mangaType, startDate, endDate, volumes, chapters := manga.Type, manga.StartDate, manga.EndDate, manga.Volumes, manga.Chapters
+		genres, popularity, coverImages := manga.Genres, manga.Popularity, manga.CoverImage
+		synonyms, malID, description := manga.Synonyms, manga.IDMal, manga.Description
 		sd, ed := time.Date(startDate.Year, time.Month(startDate.Month), startDate.Day, 0, 0, 0, 0, time.UTC), time.Date(endDate.Year, time.Month(endDate.Month), endDate.Day, 0, 0, 0, 0, time.UTC)
 		sdy, sdm, sdd := sd.Date()
 		edy, edm, edd := ed.Date()
@@ -93,11 +93,10 @@ func makeMangaSearchEmbedsVerbose(session *discordgo.Session, message *discordgo
 		embed.AddField("Description", description)
 		embed.AddField("Status", status)
 		embed.AddField("Format", format)
-		embed.AddField("Type", animeType)
+		embed.AddField("Type", mangaType)
 		embed.AddField("Start Date - End Date", dateStr)
-		embed.AddField("Season", strconv.Itoa(volumes))
-		embed.AddField("Episode", strconv.Itoa(chapters))
-		embed.AddField("Duration", strconv.Itoa(duration))
+		embed.AddField("Volumes", strconv.Itoa(volumes))
+		embed.AddField("Chapters", strconv.Itoa(chapters))
 		embed.AddField("Genres", strings.Join(genres, ", "))
 		embed.AddField("Popularity", strconv.Itoa(popularity))
 		embed.SetColor(0x1855F5)
