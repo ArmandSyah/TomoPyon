@@ -10,20 +10,20 @@ import (
 	"time"
 )
 
-func searchAnime(session *discordgo.Session, message *discordgo.Message) {
+func searchManga(session *discordgo.Session, message *discordgo.Message) {
 	content := message.Content
 	cleanedContent := misc.ReplaceSubstr(content, flagRemoveRegex)
 	seperatedContent := strings.Split(cleanedContent, " ")
-	animeSearchQuery := strings.Join(seperatedContent[1:], " ")
+	mangaSearchQuery := strings.Join(seperatedContent[1:], " ")
 	flags := misc.ExtractSubstr(content, flagRegex)
 	flags = misc.TrimSides(flags, "[", "]")
 	flags = misc.StripWhitespace(flags)
-	animeSearchResults := anilist.SearchAnime(animeSearchQuery)
+	animeSearchResults := anilist.SearchManga(mangaSearchQuery)
 	if animes, ok := animeSearchResults.([]anilist.Media); ok {
 		if flags == "v" {
-			makeAnimeSearchEmbedsVerbose(session, message, animes, animeSearchQuery)
+			makeMangaSearchEmbedsVerbose(session, message, animes, mangaSearchQuery)
 		} else {
-			makeAnimeSearchEmbeds(session, message, animes, animeSearchQuery)
+			makeMangaSearchEmbeds(session, message, animes, mangaSearchQuery)
 		}
 	} else {
 		_, err := session.ChannelMessageSend(message.ChannelID, "Error while searching")
@@ -33,7 +33,7 @@ func searchAnime(session *discordgo.Session, message *discordgo.Message) {
 	}
 }
 
-func makeAnimeSearchEmbeds(session *discordgo.Session, message *discordgo.Message, animes []anilist.Media, animeSearchQuery string) {
+func makeMangaSearchEmbeds(session *discordgo.Session, message *discordgo.Message, animes []anilist.Media, mangaSearchQuery string) {
 	authorName, avatarURL := message.Author.Username, message.Author.AvatarURL("")
 	var searchResultChunks [][]anilist.Media
 	var embeds []*misc.Embed
@@ -50,13 +50,13 @@ func makeAnimeSearchEmbeds(session *discordgo.Session, message *discordgo.Messag
 	}
 	for i, searchResultChunk := range searchResultChunks {
 		embed := misc.NewEmbed()
-		title := fmt.Sprintf("Search Results for: %s", animeSearchQuery)
+		title := fmt.Sprintf("Search Results for: %s", mangaSearchQuery)
 		embed.SetTitle(title)
 		embed.SetAuthor(authorName, avatarURL)
 		for _, anime := range searchResultChunk {
-			title, anilistLink, score, episodes, status, popularity := getTitle(anime.Title), anime.SiteURL, anime.MeanScore, anime.Episodes, anime.Status, anime.Popularity
+			title, anilistLink, score, chapters, status, popularity := getTitle(anime.Title), anime.SiteURL, anime.MeanScore, anime.Chapters, anime.Status, anime.Popularity
 			key := fmt.Sprintf("%s: %s", title, anilistLink)
-			value := fmt.Sprintf("Score: %v - Eps: %v - Status: %s - Popularity: %v", score, episodes, status, popularity)
+			value := fmt.Sprintf("Score: %v - Chapters: %v - Status: %s - Popularity: %v", score, chapters, status, popularity)
 			embed.AddField(key, value)
 		}
 		embed.SetColor(0x1855F5)
@@ -67,14 +67,14 @@ func makeAnimeSearchEmbeds(session *discordgo.Session, message *discordgo.Messag
 	sendEmbeddedMessage(session, message, embeds)
 }
 
-func makeAnimeSearchEmbedsVerbose(session *discordgo.Session, message *discordgo.Message, animes []anilist.Media, animeSearchQuery string) {
+func makeMangaSearchEmbedsVerbose(session *discordgo.Session, message *discordgo.Message, animes []anilist.Media, mangaSearchQuery string) {
 	authorName, avatarURL := message.Author.Username, message.Author.AvatarURL("")
 	var embeds []*misc.Embed
 	for i, anime := range animes {
 		embed := misc.NewEmbed()
-		title := fmt.Sprintf("Search Results for: %s", animeSearchQuery)
+		title := fmt.Sprintf("Search Results for: %s", mangaSearchQuery)
 		engTitle, romajiTitle, anilistLink, status, format := anime.Title.English, anime.Title.Romaji, anime.SiteURL, anime.Status, anime.Format
-		animeType, startDate, endDate, season, episodes := anime.Type, anime.StartDate, anime.EndDate, anime.Season, anime.Episodes
+		animeType, startDate, endDate, volumes, chapters := anime.Type, anime.StartDate, anime.EndDate, anime.Volumes, anime.Chapters
 		duration, genres, popularity, coverImages := anime.Duration, anime.Genres, anime.Popularity, anime.CoverImage
 		synonyms, malID, description := anime.Synonyms, anime.IDMal, anime.Description
 		sd, ed := time.Date(startDate.Year, time.Month(startDate.Month), startDate.Day, 0, 0, 0, 0, time.UTC), time.Date(endDate.Year, time.Month(endDate.Month), endDate.Day, 0, 0, 0, 0, time.UTC)
@@ -89,14 +89,14 @@ func makeAnimeSearchEmbedsVerbose(session *discordgo.Session, message *discordgo
 		embed.AddField("Names", fmt.Sprintf("English: %s - Romaji: %s", engTitle, romajiTitle))
 		embed.AddField("Synonyms", strings.Join(synonyms, ", "))
 		embed.AddField("Anilist Link", anilistLink)
-		embed.AddField("MAL Link", fmt.Sprintf("https://myanimelist.net/anime/%v", malID))
+		embed.AddField("MAL Link", fmt.Sprintf("https://myanimelist.net/manga/%v", malID))
 		embed.AddField("Description", description)
 		embed.AddField("Status", status)
 		embed.AddField("Format", format)
 		embed.AddField("Type", animeType)
 		embed.AddField("Start Date - End Date", dateStr)
-		embed.AddField("Season", season)
-		embed.AddField("Episode", strconv.Itoa(episodes))
+		embed.AddField("Season", strconv.Itoa(volumes))
+		embed.AddField("Episode", strconv.Itoa(chapters))
 		embed.AddField("Duration", strconv.Itoa(duration))
 		embed.AddField("Genres", strings.Join(genres, ", "))
 		embed.AddField("Popularity", strconv.Itoa(popularity))
@@ -111,9 +111,9 @@ func makeAnimeSearchEmbedsVerbose(session *discordgo.Session, message *discordgo
 
 func init() {
 	add(&command{
-		execute: searchAnime,
-		trigger: "anime",
-		aliases: []string{"a", "searchAnime", "sa"},
-		desc:    "Search for anime using Anilist's Awesome API",
+		execute: searchManga,
+		trigger: "manga",
+		aliases: []string{"m", "searchManga", "sma"},
+		desc:    "Search for manga using Anilist's Awesome API",
 	})
 }
