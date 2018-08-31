@@ -31,6 +31,7 @@ func SearchCharacter(title string) interface{} {
 									english
 									native
 								}
+								type
 							}
 						}
 					}
