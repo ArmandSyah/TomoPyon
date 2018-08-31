@@ -21,7 +21,7 @@ func searchCharacter(session *discordgo.Session, message *discordgo.Message) {
 	characterSearchResults := anilist.SearchCharacter(characterSearchQuery)
 	if characters, ok := characterSearchResults.([]anilist.Character); ok {
 		if flags == "v" {
-			//makeCharacterSearchEmbedsVerbose(session, message, characters, characterSearchQuery)
+			makeCharacterSearchEmbedsVerbose(session, message, characters, characterSearchQuery)
 		} else {
 			makeCharacterSearchEmbed(session, message, characters, characterSearchQuery)
 		}
@@ -72,6 +72,38 @@ func makeCharacterSearchEmbed(session *discordgo.Session, message *discordgo.Mes
 		footerMetadata := fmt.Sprintf("Current Page: %v - Total Pages: %v - Results on Page: %v - Total # of Results: %v", i+1, len(searchResultChunks), len(searchResultChunk), len(characters))
 		embed.SetFooter(footerMetadata, avatarURL)
 		embeds = append(embeds, embed)
+	}
+	sendEmbeddedMessage(session, message, embeds)
+}
+
+func makeCharacterSearchEmbedsVerbose(session *discordgo.Session, message *discordgo.Message, characters []anilist.Character, characterSearchQuery string) {
+	authorName, avatarURL := message.Author.Username, message.Author.AvatarURL("")
+	var embeds []*misc.Embed
+	for i, character := range characters {
+		embed := misc.NewEmbed()
+		title := fmt.Sprintf("Search Results for: %s", characterSearchQuery)
+		name, images, description, anilistLink, media := character.Name, character.Image, character.Description, character.SiteURL, character.Media
+		alternateNames := strings.Join(name.Alternative, ", ")
+		nameField := fmt.Sprintf("%s, %s\nNative: %s\nAlternate Names: %s", name.Last, name.First, name.Native, alternateNames)
+		var appearedIn []string
+		for _, media := range media.Nodes {
+			title := fmt.Sprintf("%s (%s)", getTitle(media.Title), media.Type)
+			appearedIn = append(appearedIn, title)
+		}
+		embed.SetTitle(title)
+		embed.SetAuthor(authorName, avatarURL)
+		embed.SetThumbnail(images.Medium)
+		embed.SetImage(images.Large)
+		embed.InlineAllFields()
+		embed.AddField("Names", nameField)
+		embed.AddField("Anilist Link", anilistLink)
+		embed.AddField("Description", description)
+		embed.AddField("Appeared in:", strings.Join(appearedIn, ", "))
+		embed.SetColor(0x1855F5)
+		footerMetadata := fmt.Sprintf("Current Page: %v - Total Pages: %v", i+1, len(characters))
+		embed.SetFooter(footerMetadata, avatarURL)
+		truncatedEmbed := embed.Truncate()
+		embeds = append(embeds, truncatedEmbed)
 	}
 	sendEmbeddedMessage(session, message, embeds)
 }
