@@ -78,6 +78,7 @@ type Media struct {
 type User struct {
 	ID         int        `json:"id"`
 	Name       string     `json:"name"`
+	About      string     `json:"about"`
 	Avatar     Image      `json:"avatar"`
 	Favourites Favourites `json:"favourites"`
 	SiteURL    string     `json:"siteUrl"`

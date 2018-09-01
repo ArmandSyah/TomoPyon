@@ -6,57 +6,62 @@ import (
 
 func SearchUser(title string) interface{} {
 	query := `query ($search: String) {
-		mangaSearchResults: Page {
-			media(search: $search, type: MANGA){
+		userSearchResults: Page {
+			users(search: $search) {
 				id
-				idMal
-				title{
-					english
-					romaji
-					native
+				name
+				about
+				avatar {
+				  large
+				  medium
 				}
-				type
-				format
-				status
-				description
-				startDate{
-					year
-					month
-					day
+				favourites {
+				  anime {
+					nodes {
+					  id
+					  title {
+						english
+						romaji
+						native
+					  }
+					}
+				  }
+				  manga {
+					nodes {
+					  id
+					  title {
+						english
+						romaji
+						native
+					  }
+					}
+				  }
+				  characters {
+					nodes {
+					  id
+					  name {
+						first
+						last
+						native
+						alternative
+					  }
+					}
+				  }
 				}
-				endDate{
-					year
-					month
-					day
-				}
-				chapters
-				volumes    
-				isLicensed  
-				source     
-				hashtag      
-				genres      
-				synonyms     
-				averageScore 
-				meanScore    
-				popularity   
-				trending
 				siteUrl
-				coverImage{
-					large
-					medium
-				}    
+				updatedAt
 			}
 		}
 	}`
 	variables := map[string]string{"search": title}
 	queryResults := runQuery(query, variables)
 	if data, ok := queryResults.(Data); ok {
-		mangaSearchResults := data.MangaSearchResults.Media
-		for i, mangaSearchResult := range mangaSearchResults {
-			mangaSearchResult.Description = misc.StripHTML(mangaSearchResult.Description)
-			mangaSearchResults[i] = mangaSearchResult
+		userSearchResults := data.UserSearchResults.Users
+		for i, userSearchResult := range userSearchResults {
+			userSearchResult.About = misc.StripHTML(userSearchResult.About)
+			userSearchResults[i] = userSearchResult
 		}
-		return mangaSearchResults
+		return userSearchResults
 	}
 	return nil
 }

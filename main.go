@@ -27,12 +27,12 @@ func main() {
 }
 
 func testing() {
-	animeListings := anilist.SearchCharacter("rias")
-	if animes, ok := animeListings.([]anilist.Character); ok {
-		fmt.Printf("characters found: %v\n", len(animes))
+	animeListings := anilist.SearchUser("kwespell")
+	if animes, ok := animeListings.([]anilist.User); ok {
+		fmt.Printf("users found: %v\n", len(animes))
 		for i, anime := range animes {
 			fmt.Println(i)
-			fmt.Println("English Title: " + anime.Name.Native)
+			fmt.Println("Name: " + anime.Name)
 		}
 	} else {
 		fmt.Println("XDDDDDD")
