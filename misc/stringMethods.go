@@ -34,3 +34,12 @@ func ReplaceSubstr(input, expr string) (output string) {
 func StripWhitespace(input string) string {
 	return strings.Replace(input, " ", "", -1)
 }
+
+func StringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if strings.ToLower(b) == strings.ToLower(a) {
+			return true
+		}
+	}
+	return false
+}

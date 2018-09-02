@@ -12,15 +12,10 @@ import (
 
 func searchAnime(session *discordgo.Session, message *discordgo.Message) {
 	content := message.Content
-	cleanedContent := misc.ReplaceSubstr(content, flagRemoveRegex)
-	seperatedContent := strings.Split(cleanedContent, " ")
-	animeSearchQuery := strings.Join(seperatedContent[1:], " ")
-	flags := misc.ExtractSubstr(content, flagRegex)
-	flags = misc.TrimSides(flags, "[", "]")
-	flags = misc.StripWhitespace(flags)
+	flags, animeSearchQuery := parseMessageContent(content)
 	animeSearchResults := anilist.SearchAnime(animeSearchQuery)
 	if animes, ok := animeSearchResults.([]anilist.Media); ok {
-		if flags == "v" {
+		if misc.StringInSlice("v", flags) {
 			makeAnimeSearchEmbedsVerbose(session, message, animes, animeSearchQuery)
 		} else {
 			makeAnimeSearchEmbeds(session, message, animes, animeSearchQuery)

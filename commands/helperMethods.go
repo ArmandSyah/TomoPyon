@@ -6,13 +6,41 @@ import (
 	"github.com/ArmandSyah/TomoPyon/config"
 	"github.com/ArmandSyah/TomoPyon/misc"
 	"github.com/bwmarrin/discordgo"
+	"strings"
 )
 
 const (
 	animeRegex      = "<.*>"
-	flagRegex       = `\[.*\]`
+	flagRegex       = `^\-.*`
 	flagRemoveRegex = `(.*) (\[.*\])`
 )
+
+func parseMessageContent(content string) (flags []string, searchQuery string) {
+	seperatedContent := strings.Split(content, " ")
+	if len(seperatedContent) < 2 {
+		return make([]string, 0), ""
+	}
+	seperatedContent = seperatedContent[1:]
+	var startTitleIndex int
+	for i, word := range seperatedContent {
+		if string(word[0]) == "-" {
+			flagString := word[1:]
+			for _, c := range flagString {
+				flags = append(flags, string(c))
+			}
+		} else {
+			startTitleIndex = i
+			break
+		}
+	}
+	remainingQuery := seperatedContent[startTitleIndex:]
+	searchQuery = strings.Join(remainingQuery, " ")
+	return
+	// mangaSearchQuery := strings.Join(seperatedContent[1:], " ")
+	// flags := misc.ExtractSubstr(content, flagRegex)
+	// flags = misc.TrimSides(flags, "[", "]")
+	// flags = misc.StripWhitespace(flags)
+}
 
 func getTitle(mediaTitle anilist.MediaTitle) string {
 	if mediaTitle.English != "" {

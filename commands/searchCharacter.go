@@ -5,22 +5,15 @@ import (
 	"github.com/ArmandSyah/TomoPyon/anilist"
 	"github.com/ArmandSyah/TomoPyon/misc"
 	"github.com/bwmarrin/discordgo"
-	// "strconv"
 	"strings"
-	// "time"
 )
 
 func searchCharacter(session *discordgo.Session, message *discordgo.Message) {
 	content := message.Content
-	cleanedContent := misc.ReplaceSubstr(content, flagRemoveRegex)
-	seperatedContent := strings.Split(cleanedContent, " ")
-	characterSearchQuery := strings.Join(seperatedContent[1:], " ")
-	flags := misc.ExtractSubstr(content, flagRegex)
-	flags = misc.TrimSides(flags, "[", "]")
-	flags = misc.StripWhitespace(flags)
+	flags, characterSearchQuery := parseMessageContent(content)
 	characterSearchResults := anilist.SearchCharacter(characterSearchQuery)
 	if characters, ok := characterSearchResults.([]anilist.Character); ok {
-		if flags == "v" {
+		if misc.StringInSlice("v", flags) {
 			makeCharacterSearchEmbedsVerbose(session, message, characters, characterSearchQuery)
 		} else {
 			makeCharacterSearchEmbed(session, message, characters, characterSearchQuery)

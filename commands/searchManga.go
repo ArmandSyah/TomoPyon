@@ -12,15 +12,10 @@ import (
 
 func searchManga(session *discordgo.Session, message *discordgo.Message) {
 	content := message.Content
-	cleanedContent := misc.ReplaceSubstr(content, flagRemoveRegex)
-	seperatedContent := strings.Split(cleanedContent, " ")
-	mangaSearchQuery := strings.Join(seperatedContent[1:], " ")
-	flags := misc.ExtractSubstr(content, flagRegex)
-	flags = misc.TrimSides(flags, "[", "]")
-	flags = misc.StripWhitespace(flags)
+	flags, mangaSearchQuery := parseMessageContent(content)
 	animeSearchResults := anilist.SearchManga(mangaSearchQuery)
 	if animes, ok := animeSearchResults.([]anilist.Media); ok {
-		if flags == "v" {
+		if misc.StringInSlice("v", flags) {
 			makeMangaSearchEmbedsVerbose(session, message, animes, mangaSearchQuery)
 		} else {
 			makeMangaSearchEmbeds(session, message, animes, mangaSearchQuery)
