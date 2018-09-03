@@ -36,10 +36,30 @@ func parseMessageContent(content string) (flags []string, searchQuery string) {
 	remainingQuery := seperatedContent[startTitleIndex:]
 	searchQuery = strings.Join(remainingQuery, " ")
 	return
-	// mangaSearchQuery := strings.Join(seperatedContent[1:], " ")
-	// flags := misc.ExtractSubstr(content, flagRegex)
-	// flags = misc.TrimSides(flags, "[", "]")
-	// flags = misc.StripWhitespace(flags)
+}
+
+func getNamesFromList(characterList []anilist.Character) (characterNames []string) {
+	for _, character := range characterList {
+		var name string
+		if character.Name.First != "" && character.Name.Last != "" {
+			name = fmt.Sprintf("%s, %s", character.Name.Last, character.Name.First)
+		} else if character.Name.First != "" {
+			name = character.Name.First
+		} else if character.Name.Last != "" {
+			name = character.Name.Last
+		} else {
+			name = character.Name.Native
+		}
+		characterNames = append(characterNames, name)
+	}
+	return
+}
+
+func getTitlesFromList(mediaList []anilist.Media) (titles []string) {
+	for _, media := range mediaList {
+		titles = append(titles, getTitle(media.Title))
+	}
+	return
 }
 
 func getTitle(mediaTitle anilist.MediaTitle) string {
@@ -50,7 +70,7 @@ func getTitle(mediaTitle anilist.MediaTitle) string {
 	} else if mediaTitle.Native != "" {
 		return mediaTitle.Native
 	} else {
-		return "Why is there no title, how does this happen?"
+		return ""
 	}
 }
 

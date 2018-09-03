@@ -105,7 +105,7 @@ type UserStats struct {
 	AnimeScoreDistribution  []ScoreDistribution   `json:"animeScoreDistrubtion"`
 	MangaScoreDistribution  []ScoreDistribution   `json:"mangaScoreDistribution"`
 	AnimeListScores         ListScoreStats        `json:"animeListScores"`
-	ManagaListScores        ListScoreStats        `json:"mangaListScores"`
+	MangaListScores         ListScoreStats        `json:"mangaListScores"`
 }
 
 type User struct {
