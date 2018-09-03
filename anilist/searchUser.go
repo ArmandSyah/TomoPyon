@@ -48,6 +48,39 @@ func SearchUser(title string) interface{} {
 					}
 				  }
 				}
+				stats {
+					watchedTime
+					chaptersRead
+					activityHistory {
+						date
+						amount
+						level
+					}
+					animeStatusDistribution {
+						status
+						amount
+					}
+					mangaStatusDistribution {
+						status
+						amount
+					}
+					animeScoreDistribution {
+						score
+						amount
+					}
+					mangaScoreDistribution {
+						score
+						amount
+					}
+					animeListScores {
+						meanScore
+						standardDeviation
+					}
+					mangaListScores {
+						meanScore
+						standardDeviation
+					}
+				}
 				siteUrl
 				updatedAt
 			}

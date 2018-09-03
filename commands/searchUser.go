@@ -17,7 +17,7 @@ func searchUser(session *discordgo.Session, message *discordgo.Message) {
 	userSearchResults := anilist.SearchUser(userSearchQuery)
 	if users, ok := userSearchResults.([]anilist.User); ok {
 		if misc.StringInSlice("v", flags) {
-			// makeAnimeSearchEmbedsVerbose(session, message, users, userSearchQuery)
+			makeUserSearchEmbedsVerbose(session, message, users, userSearchQuery)
 		} else {
 			makeUserSearchEmbeds(session, message, users, userSearchQuery)
 		}
@@ -75,30 +75,25 @@ func makeUserSearchEmbedsVerbose(session *discordgo.Session, message *discordgo.
 		name, anilistLink, updatedAt, avatar, about := user.Name, user.SiteURL, time.Unix(int64(user.UpdatedAt), 0), user.Avatar, user.About
 		favourites, stats := user.Favourites, user.Stats
 		animeFavourites, mangaFavourites, characterFavourites := favourites.Anime.Nodes, favourites.Manga.Nodes, favourites.Characters.Nodes
-		watchedTime, chaptersRead, mostRecentWatch, animeStatusDistribution, mangaStatusDistribution := stats.WatchedTime, stats.ChaptersRead, stats.ActivityHistory[len(stats.ActivityHistory)-1], stats.AnimeStatusDistribution, stats.MangaStatusDistribution
-		animeScoreDistribution, mangaScoreDistribution, animeListScores, mangaListScores := stats.AnimeScoreDistribution, stats.MangaScoreDistribution, stats.AnimeListScores, stats.MangaListScores
-		animeFavouritesValue, mangaFavouritesValue, characterFavouritesValue := strings.Join(getTitlesFromList(animeFavourites), "|"), strings.Join(getTitlesFromList(mangaFavourites), "|"), strings.Join(getNamesFromList(characterFavourites), "|")
+		watchedTime, chaptersRead, mostRecentWatch, animeStatusDistribution, mangaStatusDistribution := stats.WatchedTime, stats.ChaptersRead, stats.ActivityHistory[len(stats.ActivityHistory)-1], makeStatusDistribution(stats.AnimeStatusDistribution), makeStatusDistribution(stats.MangaStatusDistribution)
+		animeScoreDistribution, mangaScoreDistribution, animeListScores, mangaListScores := makeScoreDistribution(stats.AnimeScoreDistribution), makeScoreDistribution(stats.MangaScoreDistribution), stats.AnimeListScores, stats.MangaListScores
 		embed.SetThumbnail(avatar.Medium)
 		embed.SetImage(avatar.Large)
 		embed.InlineAllFields()
 		embed.AddField("User - LastUpdated", fmt.Sprintf("%s - %s", name, updatedAt))
 		embed.AddField("Anilist Link", anilistLink)
 		embed.AddField("About", about)
-		embed.AddField("Favourite Anime", animeFavouritesValue)
-		embed.AddField("Favourite Manga", mangaFavouritesValue)
-		embed.AddField("Favourite Characters", characterFavouritesValue)
-		embed.AddField("Stats", fmt.Sprintf("Total Watch Time: %s - Total Chapters Read: %s", watchedTime, chaptersRead))
-		embed.AddField("Recent Activity History", fmt.Sprintf("Date: %s - Amount: %s - Level: %s", mostRecentWatch.Date, mostRecentWatch.Amount, mostRecentWatch.Level))
-
-		// embed.AddField("Status", status)
-		// embed.AddField("Format", format)
-		// embed.AddField("Type", animeType)
-		// embed.AddField("Start Date - End Date", dateStr)
-		// embed.AddField("Season", season)
-		// embed.AddField("Episode", strconv.Itoa(episodes))
-		// embed.AddField("Duration", strconv.Itoa(duration))
-		// embed.AddField("Genres", strings.Join(genres, ", "))
-		// embed.AddField("Popularity", strconv.Itoa(popularity))
+		embed.AddField("Favourite Anime", strings.Join(getTitlesFromList(animeFavourites), " | "))
+		embed.AddField("Favourite Manga", strings.Join(getTitlesFromList(mangaFavourites), " | "))
+		embed.AddField("Favourite Characters", strings.Join(getNamesFromList(characterFavourites), " | "))
+		embed.AddField("Stats", fmt.Sprintf("Total Watch Time: %d - Total Chapters Read: %d", watchedTime, chaptersRead))
+		embed.AddField("Recent Activity History", fmt.Sprintf("Date: %s - Amount: %d - Level: %d", time.Unix(int64(mostRecentWatch.Date), 0), mostRecentWatch.Amount, mostRecentWatch.Level))
+		embed.AddField("Anime Status Distribution", strings.Join(animeStatusDistribution, " | "))
+		embed.AddField("Manga Status Distribution", strings.Join(mangaStatusDistribution, " | "))
+		embed.AddField("Anime Score Distribution", strings.Join(animeScoreDistribution, " | "))
+		embed.AddField("Manga Score Distribution", strings.Join(mangaScoreDistribution, " | "))
+		embed.AddField("Anime List Scores", fmt.Sprintf("Mean Score: %d - Standard Deviation: %d", animeListScores.MeanScore, animeListScores.StandardDeviation))
+		embed.AddField("Manga List Scores", fmt.Sprintf("Mean Score: %d - Standard Deviation: %d", mangaListScores.MeanScore, mangaListScores.StandardDeviation))
 		embed.SetColor(0x1855F5)
 		footerMetadata := fmt.Sprintf("Current Page: %v - Total Pages: %v", i+1, len(users))
 		embed.SetFooter(footerMetadata, avatarURL)

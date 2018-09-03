@@ -33,6 +33,7 @@ func testing() {
 		for i, anime := range animes {
 			fmt.Println(i)
 			fmt.Println("Name: " + anime.Name)
+			fmt.Println(anime.Stats.ActivityHistory)
 		}
 	} else {
 		fmt.Println("XDDDDDD")

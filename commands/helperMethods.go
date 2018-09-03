@@ -38,6 +38,20 @@ func parseMessageContent(content string) (flags []string, searchQuery string) {
 	return
 }
 
+func makeScoreDistribution(scoreDistribution []anilist.ScoreDistribution) (scores []string) {
+	for _, score := range scoreDistribution {
+		scores = append(scores, fmt.Sprintf("%d: %d", score.Score, score.Amount))
+	}
+	return
+}
+
+func makeStatusDistribution(statusDistribution []anilist.StatusDistribution) (statuses []string) {
+	for _, status := range statusDistribution {
+		statuses = append(statuses, fmt.Sprintf("%s: %d", status.Status, status.Amount))
+	}
+	return
+}
+
 func getNamesFromList(characterList []anilist.Character) (characterNames []string) {
 	for _, character := range characterList {
 		var name string
