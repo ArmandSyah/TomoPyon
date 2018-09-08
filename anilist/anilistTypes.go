@@ -6,6 +6,12 @@ type FuzzyDate struct {
 	Day   int `json:"day"`
 }
 
+type StaffName struct {
+	First  string `json:"first"`
+	Last   string `json:"last"`
+	Native string `json:"native"`
+}
+
 type CharacterName struct {
 	First       string   `json:"first"`
 	Last        string   `json:"last"`
@@ -126,6 +132,16 @@ type Studio struct {
 	SiteURL string          `json:"siteUrl"`
 }
 
+type Staff struct {
+	ID          int                 `json:"id"`
+	Name        StaffName           `json:"name"`
+	Language    string              `json:"language"`
+	Image       Image               `json:"image"`
+	Description string              `json:"description"`
+	StaffMedia  MediaConnection     `json:"staffMedia"`
+	Characters  CharacterConnection `json:chracters`
+}
+
 type CharacterSearchResults struct {
 	Characters []Character `json:"characters"`
 }
@@ -146,10 +162,15 @@ type StudioSearchResults struct {
 	Studios []Studio `json:"studios"`
 }
 
+type StaffSearchResults struct {
+	Staff []Staff `json:"staff"`
+}
+
 type Data struct {
 	MangaSearchResults     MangaSearchResults     `json:"mangaSearchResults"`
 	AnimeSearchResults     AnimeSearchResults     `json:"animeSearchResults"`
 	CharacterSearchResults CharacterSearchResults `json:"characterSearchResults"`
 	UserSearchResults      UserSearchResults      `json:"userSearchResults"`
 	StudioSearchResults    StudioSearchResults    `json:"studioSearchResults"`
+	StaffSearchResults     StaffSearchResults     `json:"staffSearchResults"`
 }
