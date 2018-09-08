@@ -139,7 +139,8 @@ type Staff struct {
 	Image       Image               `json:"image"`
 	Description string              `json:"description"`
 	StaffMedia  MediaConnection     `json:"staffMedia"`
-	Characters  CharacterConnection `json:chracters`
+	Characters  CharacterConnection `json:"chracters"`
+	SiteURL     string              `json:"siteUrl"`
 }
 
 type CharacterSearchResults struct {

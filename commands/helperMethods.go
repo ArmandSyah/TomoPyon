@@ -88,6 +88,19 @@ func getTitle(mediaTitle anilist.MediaTitle) string {
 	}
 }
 
+func getStaffName(staffName anilist.StaffName) (name string) {
+	if staffName.First != "" && staffName.Last != "" {
+		name = fmt.Sprintf("%s, %s", staffName.Last, staffName.First)
+	} else if staffName.First != "" {
+		name = staffName.First
+	} else if staffName.Last != "" {
+		name = staffName.Last
+	} else {
+		name = staffName.Native
+	}
+	return
+}
+
 func sendEmbeddedMessage(session *discordgo.Session, message *discordgo.Message, embeds []*misc.Embed) {
 	if len(embeds) > 1 {
 		index, totalPages := 0, len(embeds)-1

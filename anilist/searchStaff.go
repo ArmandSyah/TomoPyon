@@ -5,9 +5,9 @@ import (
 )
 
 func SearchStaff(title string) interface{} {
-	query := `query($search: String, sort:SEARCH_MATCH){
+	query := `query($search: String){
 		staffSearchResults: Page{
-			staff(search: $search){
+			staff(search: $search, sort:SEARCH_MATCH){
 				id
 				name {
 					first
