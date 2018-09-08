@@ -6,8 +6,6 @@ import (
 	"github.com/ArmandSyah/TomoPyon/misc"
 	"github.com/bwmarrin/discordgo"
 	"strings"
-	// "strconv"
-	// "strings"
 	"time"
 )
 

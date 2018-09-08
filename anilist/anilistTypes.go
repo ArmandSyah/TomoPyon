@@ -119,6 +119,13 @@ type User struct {
 	UpdatedAt  int        `json:"updatedAt"`
 }
 
+type Studio struct {
+	ID      int             `json:"id"`
+	Name    string          `json:"name"`
+	Media   MediaConnection `json:"media"`
+	SiteURL string          `json:"siteUrl"`
+}
+
 type CharacterSearchResults struct {
 	Characters []Character `json:"characters"`
 }
@@ -135,9 +142,14 @@ type UserSearchResults struct {
 	Users []User `json:"users"`
 }
 
+type StudioSearchResults struct {
+	Studios []Studio `json:"studios"`
+}
+
 type Data struct {
 	MangaSearchResults     MangaSearchResults     `json:"mangaSearchResults"`
 	AnimeSearchResults     AnimeSearchResults     `json:"animeSearchResults"`
 	CharacterSearchResults CharacterSearchResults `json:"characterSearchResults"`
 	UserSearchResults      UserSearchResults      `json:"userSearchResults"`
+	StudioSearchResults    StudioSearchResults    `json:"studioSearchResults"`
 }
