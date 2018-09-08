@@ -106,6 +106,6 @@ func init() {
 		execute: searchUser,
 		trigger: "user",
 		aliases: []string{"u", "searchUser", "su"},
-		desc:    "Search for anime using Anilist's Awesome API",
+		desc:    "Search for users using Anilist's Awesome API",
 	})
 }
