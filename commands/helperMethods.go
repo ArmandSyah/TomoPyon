@@ -52,19 +52,22 @@ func makeStatusDistribution(statusDistribution []anilist.StatusDistribution) (st
 	return
 }
 
-func getNamesFromList(characterList []anilist.Character) (characterNames []string) {
+func getCharacterName(character anilist.Character) (chacterName string) {
+	if character.Name.First != "" && character.Name.Last != "" {
+		chacterName = fmt.Sprintf("%s, %s", character.Name.Last, character.Name.First)
+	} else if character.Name.First != "" {
+		chacterName = character.Name.First
+	} else if character.Name.Last != "" {
+		chacterName = character.Name.Last
+	} else {
+		chacterName = character.Name.Native
+	}
+	return
+}
+
+func getCharacterNamesFromList(characterList []anilist.Character) (characterNames []string) {
 	for _, character := range characterList {
-		var name string
-		if character.Name.First != "" && character.Name.Last != "" {
-			name = fmt.Sprintf("%s, %s", character.Name.Last, character.Name.First)
-		} else if character.Name.First != "" {
-			name = character.Name.First
-		} else if character.Name.Last != "" {
-			name = character.Name.Last
-		} else {
-			name = character.Name.Native
-		}
-		characterNames = append(characterNames, name)
+		characterNames = append(characterNames, getCharacterName(character))
 	}
 	return
 }

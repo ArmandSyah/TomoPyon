@@ -83,7 +83,7 @@ func makeUserSearchEmbedsVerbose(session *discordgo.Session, message *discordgo.
 		embed.AddField("About", about)
 		embed.AddField("Favourite Anime", strings.Join(getTitlesFromList(animeFavourites), " | "))
 		embed.AddField("Favourite Manga", strings.Join(getTitlesFromList(mangaFavourites), " | "))
-		embed.AddField("Favourite Characters", strings.Join(getNamesFromList(characterFavourites), " | "))
+		embed.AddField("Favourite Characters", strings.Join(getCharacterNamesFromList(characterFavourites), " | "))
 		embed.AddField("Stats", fmt.Sprintf("Total Watch Time: %d - Total Chapters Read: %d", watchedTime, chaptersRead))
 		embed.AddField("Recent Activity History", fmt.Sprintf("Date: %s - Amount: %d - Level: %d", time.Unix(int64(mostRecentWatch.Date), 0), mostRecentWatch.Amount, mostRecentWatch.Level))
 		embed.AddField("Anime Status Distribution", strings.Join(animeStatusDistribution, " | "))

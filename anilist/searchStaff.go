@@ -29,6 +29,7 @@ func SearchStaff(title string) interface{} {
 							romaji
 							native
 						}
+						siteUrl
 					}
 				}
 				characters {
@@ -40,6 +41,7 @@ func SearchStaff(title string) interface{} {
 							native
 
 						}
+						siteUrl
 					}
 				}
 			}
