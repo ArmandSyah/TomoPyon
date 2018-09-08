@@ -8,8 +8,20 @@ import (
 	"net/http"
 )
 
+type ErrorLocation struct {
+	Line   int `json:"line"`
+	Column int `json:"column"`
+}
+
+type Error struct {
+	Message   string          `json:"message"`
+	Status    int             `json:"status"`
+	Locations []ErrorLocation `json:"locations"`
+}
+
 type AnilistAPIResposne struct {
-	Data Data `json:"data"`
+	Data   Data    `json:"data"`
+	Errors []Error `json:"errors"`
 }
 
 func getResponse(body []byte) (*AnilistAPIResposne, error) {
@@ -44,6 +56,12 @@ func runQuery(query string, variables map[string]string) interface{} {
 	if err != nil {
 		fmt.Println("4")
 		panic(err.Error())
+	}
+	if len(anilistData.Errors) > 0 {
+		errors2B, _ := json.Marshal(anilistData.Errors)
+		fmt.Println("Errors found: ")
+		fmt.Println(string(errors2B))
+		return nil
 	}
 	return anilistData.Data
 }
