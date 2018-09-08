@@ -6,7 +6,7 @@ func SearchStudio(title string) interface{} {
 			studios(search: $search, sort: SEARCH_MATCH) {
 				id
 				name
-				media {
+				media (sort: SCORE_DESC) {
 					nodes {
 						id
 						title {
@@ -17,6 +17,8 @@ func SearchStudio(title string) interface{} {
 						type
 						status
 						siteUrl
+						averageScore
+						meanScore
 					}
 				}
 				siteUrl
