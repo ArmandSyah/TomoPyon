@@ -27,12 +27,12 @@ func main() {
 }
 
 func testing() {
-	animeListings := anilist.SearchStudio("trigger")
-	if animes, ok := animeListings.([]anilist.Studio); ok {
+	animeListings := anilist.GetSchedule()
+	if animes, ok := animeListings.([]anilist.AiringSchedule); ok {
 		fmt.Printf("studios found: %v\n", len(animes))
 		for i, anime := range animes {
 			fmt.Println(i)
-			fmt.Println("Name: " + anime.Name)
+			fmt.Printf("Media ID: %d\n", anime.MediaID)
 		}
 	} else {
 		fmt.Println("XDDDDDD")

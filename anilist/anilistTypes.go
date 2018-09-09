@@ -143,6 +143,15 @@ type Staff struct {
 	SiteURL     string              `json:"siteUrl"`
 }
 
+type AiringSchedule struct {
+	ID              int   `json:"id"`
+	AiringAt        int   `json:"airingAt"`
+	TimeUntilAiring int   `json:"timeUntilAiring"`
+	MediaID         int   `json:"mediaId"`
+	Media           Media `json:"media"`
+	Episode         int   `json:"episode"`
+}
+
 type CharacterSearchResults struct {
 	Characters []Character `json:"characters"`
 }
@@ -167,6 +176,10 @@ type StaffSearchResults struct {
 	Staff []Staff `json:"staff"`
 }
 
+type AiringSearchResults struct {
+	AiringSchedules []AiringSchedule `json:"airingSchedules"`
+}
+
 type Data struct {
 	MangaSearchResults     MangaSearchResults     `json:"mangaSearchResults"`
 	AnimeSearchResults     AnimeSearchResults     `json:"animeSearchResults"`
@@ -174,4 +187,5 @@ type Data struct {
 	UserSearchResults      UserSearchResults      `json:"userSearchResults"`
 	StudioSearchResults    StudioSearchResults    `json:"studioSearchResults"`
 	StaffSearchResults     StaffSearchResults     `json:"staffSearchResults"`
+	AiringSearchResults    AiringSearchResults    `json:"airingSearchResults"`
 }

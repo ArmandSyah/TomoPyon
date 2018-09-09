@@ -82,7 +82,7 @@ func init() {
 	add(&command{
 		execute: searchStudio,
 		trigger: "studio",
-		aliases: []string{"s", "searchStudio", "ss"},
+		aliases: []string{"su", "searchStudio", "ss"},
 		desc:    "Search for studios using Anilist's Awesome API",
 	})
 }
