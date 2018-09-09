@@ -61,7 +61,7 @@ func runQuery(query string, variables map[string]string) interface{} {
 		errors2B, _ := json.Marshal(anilistData.Errors)
 		fmt.Println("Errors found: ")
 		fmt.Println(string(errors2B))
-		return nil
+		return anilistData.Errors
 	}
 	return anilistData.Data
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func GetSchedule() interface{} {
-	airingSearchResults := make([]AiringSchedule, 10)
+	airingSearchResults := make([]AiringSchedule, 0)
 	currentTime := time.Now()
 	timeEndpoint := currentTime.AddDate(0, 0, 7)
 	currentTimeUnixSeconds, timeEndpointUnixSeconds := currentTime.Unix(), timeEndpoint.Unix()
@@ -33,6 +33,9 @@ func GetSchedule() interface{} {
 	for i := 1; ; i++ {
 		variables := map[string]string{"pageNum": strconv.Itoa(i), "airingGreater": strconv.Itoa(int(currentTimeUnixSeconds)), "airingLess": strconv.Itoa(int(timeEndpointUnixSeconds))}
 		queryResults := runQuery(query, variables)
+		if _, ok := queryResults.([]Error); ok {
+			break
+		}
 		if data, ok := queryResults.(Data); ok {
 			searchResults := data.AiringSearchResults.AiringSchedules
 			if len(searchResults) <= 0 {

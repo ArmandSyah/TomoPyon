@@ -33,6 +33,8 @@ func testing() {
 		for i, anime := range animes {
 			fmt.Println(i)
 			fmt.Printf("Media ID: %d\n", anime.MediaID)
+			fmt.Println("English: " + anime.Media.Title.English)
+			fmt.Println("Romaji: " + anime.Media.Title.Romaji)
 		}
 	} else {
 		fmt.Println("XDDDDDD")
